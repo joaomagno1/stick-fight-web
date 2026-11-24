@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stick Fight: Arena Web</title>
+  <meta name="description" content="Jogo de luta leve estilo Stick Fight em HTML5, CSS3 e JavaScript puro." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-wrapper">
+    <!-- Canvas principal (16:9 escalável) -->
+    <canvas id="game-canvas" width="1280" height="720"></canvas>
+
+    <!-- HUD da Partida -->
+    <header id="hud" class="hidden">
+      <div class="fighter-hud p1-hud">
+        <div class="hud-top-row">
+          <span class="fighter-badge p1-badge" id="p1-name">JOGADOR 1</span>
+          <span class="weapon-tag" id="p1-weapon">Punhos</span>
+        </div>
+        <div class="hp-bar-outer">
+          <div class="hp-bar-ghost" id="p1-hp-ghost"></div>
+          <div class="hp-bar-fill p1-fill" id="p1-hp-fill"></div>
+        </div>
+        <div class="score-pips" id="p1-score"></div>
+      </div>
+
+      <div class="center-hud">
+        <div class="round-pill" id="round-badge">ROUND 1</div>
+        <div class="arena-label" id="arena-badge">Telhados Neon</div>
+        <div class="hud-actions">
+          <button id="btn-sound" class="icon-btn" title="Alternar Som (M)">🔊</button>
+          <button id="btn-fps" class="icon-btn" title="Mostrar FPS">FPS</button>
+          <button id="btn-pause" class="icon-btn" title="Pausar (ESC / P)">⏸</button>
+        </div>
+        <div id="fps-counter" class="fps-tag hidden">60 FPS</div>
+      </div>
+
+      <div class="fighter-hud p2-hud">
+        <div class="hud-top-row reverse">
+          <span class="fighter-badge p2-badge" id="p2-name">CPU (NORMAL)</span>
+          <span class="weapon-tag" id="p2-weapon">Punhos</span>
+        </div>
+        <div class="hp-bar-outer reverse-bar">
+          <div class="hp-bar-ghost" id="p2-hp-ghost"></div>
+          <div class="hp-bar-fill p2-fill" id="p2-hp-fill"></div>
+        </div>
+        <div class="score-pips reverse" id="p2-score"></div>
+      </div>
+    </header>
+
+    <!-- Anúncio Central de Round / KO -->
+    <div id="center-banner" class="center-banner hidden">
+      <div id="banner-main" class="banner-main">ROUND 1</div>
+      <div id="banner-sub" class="banner-sub">PREPARE-SE</div>
+    </div>
+
+    <!-- Barra discreta de atalhos durante a luta -->
+    <div id="controls-bar" class="controls-bar hidden">
+      <span id="p1-hint"><strong>P1:</strong> WASD Mover/Pular • F Atacar • G Defender/Dash • E Jogar Arma</span>
+      <span class="sep" id="hint-sep">|</span>
+      <span id="p2-hint"><strong>P2:</strong> Setas Mover/Pular • K Atacar • L Defender/Dash • O Jogar Arma</span>
+      <span class="sep">|</span>
+      <span><strong>H</strong> Ocultar Dicas</span>
+    </div>
+
+    <!-- Menu Principal -->
+    <section id="menu-screen" class="overlay-screen">
+      <div class="menu-card">
+        <div class="title-group">
+          <span class="mini-tag">HTML5 • CSS3 • JS PURO</span>
+          <h1>STICK <span>FIGHT</span></h1>
+          <p class="subtitle">ARENA FÍSICA DE COMBATE</p>
+        </div>
+
+        <div class="config-grid">
+          <!-- Modo de Jogo -->
+          <div class="config-row">
+            <label>Modo de Jogo</label>
+            <div class="segmented" id="mode-select">
+              <button type="button" class="seg-btn active" data-mode="1p">1 Jogador (vs IA)</button>
+              <button type="button" class="seg-btn" data-mode="2p">2 Jogadores (Local)</button>
+            </div>
+          </div>
+
+          <!-- Dificuldade da IA -->
+          <div class="config-row" id="ai-row">
+            <label>Dificuldade da IA</label>
+            <div class="segmented" id="ai-select">
+              <button type="button" class="seg-btn" data-ai="easy">Fácil</button>
+              <button type="button" class="seg-btn active" data-ai="normal">Normal</button>
+              <button type="button" class="seg-btn" data-ai="insane">Insano</button>
+            </div>
+          </div>
+
+          <!-- Meta de Vitórias -->
+          <div class="config-row">
+            <label>Duração da Partida</label>
+            <div class="segmented" id="wins-select">
+              <button type="button" class="seg-btn" data-wins="3">3 Vitórias</button>
+              <button type="button" class="seg-btn active" data-wins="5">5 Vitórias</button>
+              <button type="button" class="seg-btn" data-wins="7">7 Vitórias</button>
+            </div>
+          </div>
+
+          <!-- Seleção de Arena -->
+          <div class="config-row">
+            <label>Arena</label>
+            <select id="arena-select" class="styled-select">
+              <option value="random">Aleatória (Troca a cada Round)</option>
+              <option value="0">1. Telhados Neon</option>
+              <option value="1">2. Fábrica de Lava</option>
+              <option value="2">3. Ponte Explosiva</option>
+              <option value="3">4. Torre Laser</option>
+              <option value="4">5. Céu Cibernético (Plataformas Móveis)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="menu-buttons">
+          <button id="btn-start" class="primary-btn">LUTAR AGORA</button>
+          <button id="btn-controls" class="secondary-btn">Controles &amp; Dicas</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal de Controles -->
+    <section id="controls-modal" class="overlay-screen hidden">
+      <div class="modal-card">
+        <h2>CONTROLES &amp; MECÂNICAS</h2>
+        <div class="controls-columns">
+          <div class="ctrl-box p1-box">
+            <h3>Jogador 1 (Ciano)</h3>
+            <ul>
+              <li><kbd>A</kbd> / <kbd>D</kbd> Correr</li>
+              <li><kbd>W</kbd> Pular / Pulo Duplo / Wall Jump</li>
+              <li><kbd>S</kbd> Agachar / Descer Plataforma</li>
+              <li><kbd>F</kbd> Soco / Espada / Atirar</li>
+              <li><kbd>G</kbd> Bloquear (+ A/D para Esquiva)</li>
+              <li><kbd>E</kbd> Arremessar Arma Equipada</li>
+            </ul>
+          </div>
+          <div class="ctrl-box p2-box">
+            <h3>Jogador 2 (Coral)</h3>
+            <ul>
+              <li><kbd>←</kbd> / <kbd>→</kbd> Correr</li>
+              <li><kbd>↑</kbd> Pular / Pulo Duplo / Wall Jump</li>
+              <li><kbd>↓</kbd> Agachar / Descer Plataforma</li>
+              <li><kbd>K</kbd> ou <kbd>Num 1</kbd> Atacar / Atirar</li>
+              <li><kbd>L</kbd> ou <kbd>Num 2</kbd> Bloquear / Esquiva</li>
+              <li><kbd>O</kbd> ou <kbd>Num 3</kbd> Arremessar Arma</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tips-strip">
+          <p><strong>Dicas de Combate:</strong> Caixas de armas caem do céu durante o round! Bloquear no instante exato (<kbd>Parry</kbd>) reflete tiros e atordoa o inimigo. Cuidado com barris vermelhos explosivos, lava e quedas no abismo!</p>
+        </div>
+        <button id="btn-close-controls" class="primary-btn">ENTENDI</button>
+      </div>
+    </section>
+
+    <!-- Tela de Pausa -->
+    <section id="pause-screen" class="overlay-screen hidden">
+      <div class="modal-card small-card">
+        <h2>JOGO PAUSADO</h2>
+        <div class="menu-buttons vertical">
+          <button id="btn-resume" class="primary-btn">Continuar (ESC)</button>
+          <button id="btn-restart-match" class="secondary-btn">Reiniciar Partida</button>
+          <button id="btn-back-menu" class="secondary-btn">Voltar ao Menu</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tela de Vitória Final -->
+    <section id="victory-screen" class="overlay-screen hidden">
+      <div class="modal-card victory-card">
+        <span class="mini-tag">FIM DE PARTIDA</span>
+        <h2 id="winner-title">JOGADOR 1 VENCEU!</h2>
+        <p id="winner-score-line" class="score-summary">Placar Final: 5 × 2</p>
+        <div id="winner-stats" class="stats-grid"></div>
+        <div class="menu-buttons">
+          <button id="btn-rematch" class="primary-btn">Jogar Novamente</button>
+          <button id="btn-victory-menu" class="secondary-btn">Menu Principal</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Scripts modulares sem dependências externas (compatível com file:// e GitHub Pages) -->
+  <script src="js/audio.js"></script>
+  <script src="js/arenas.js"></script>
+  <script src="js/weapons.js"></script>
+  <script src="js/fighter.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

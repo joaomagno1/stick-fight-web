@@ -1,0 +1,600 @@
+/* ==========================================================================
+   STICK FIGHT: ARENA WEB — Folha de Estilos Leve (Zero Dependências)
+   ========================================================================== */
+
+:root {
+  --bg-dark: #090b14;
+  --panel-bg: rgba(14, 18, 32, 0.84);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --text-main: #f3f6ff;
+  --text-muted: #9aa5c4;
+  --p1-color: #00e5ff;
+  --p1-glow: rgba(0, 229, 255, 0.45);
+  --p2-color: #ff4769;
+  --p2-glow: rgba(255, 71, 105, 0.45);
+  --accent: #ffbe0b;
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #13182b 0%, #05070d 100%);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-wrapper {
+  position: relative;
+  width: min(100vw, calc(100vh * (16 / 9)));
+  height: min(100vh, calc(100vw * (9 / 16)));
+  background: var(--bg-dark);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   HUD DE COMBATE
+   ========================================================================== */
+
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 22px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.fighter-hud {
+  flex: 1;
+  max-width: 39%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hud-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.hud-top-row.reverse {
+  flex-direction: row-reverse;
+}
+
+.fighter-badge {
+  font-size: clamp(11px, 1.25vw, 15px);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.p1-badge { color: var(--p1-color); }
+.p2-badge { color: var(--p2-color); }
+
+.weapon-tag {
+  font-size: clamp(10px, 1.05vw, 13px);
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(15, 20, 36, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffe082;
+}
+
+.hp-bar-outer {
+  position: relative;
+  height: clamp(12px, 1.6vw, 18px);
+  background: rgba(8, 10, 18, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  overflow: hidden;
+  transform: skewX(-14deg);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.hp-bar-ghost,
+.hp-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  transition: width 0.08s linear;
+}
+
+.hp-bar-ghost {
+  background: rgba(255, 255, 255, 0.75);
+  transition: width 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reverse-bar .hp-bar-ghost,
+.reverse-bar .hp-bar-fill {
+  left: auto;
+  right: 0;
+}
+
+.p1-fill {
+  background: linear-gradient(90deg, #0099ff, #00f0ff);
+  box-shadow: 0 0 12px var(--p1-glow);
+}
+
+.p2-fill {
+  background: linear-gradient(270deg, #ff1e56, #ff6b4a);
+  box-shadow: 0 0 12px var(--p2-glow);
+}
+
+.score-pips {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.score-pips.reverse {
+  flex-direction: row-reverse;
+}
+
+.pip {
+  width: clamp(10px, 1.1vw, 13px);
+  height: clamp(10px, 1.1vw, 13px);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.pip.won-p1 {
+  background: var(--p1-color);
+  border-color: #ffffff;
+  box-shadow: 0 0 8px var(--p1-color);
+  transform: scale(1.12);
+}
+
+.pip.won-p2 {
+  background: var(--p2-color);
+  border-color: #ffffff;
+  box-shadow: 0 0 8px var(--p2-color);
+  transform: scale(1.12);
+}
+
+.center-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.round-pill {
+  background: rgba(15, 20, 36, 0.9);
+  border: 1px solid rgba(255, 190, 11, 0.55);
+  color: var(--accent);
+  padding: 3px 14px;
+  border-radius: 999px;
+  font-size: clamp(11px, 1.2vw, 14px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.arena-label {
+  font-size: clamp(10px, 1vw, 12px);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.hud-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.icon-btn {
+  background: rgba(14, 18, 32, 0.82);
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.fps-tag {
+  font-size: 11px;
+  font-family: monospace;
+  color: #69f0ae;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   BANNER CENTRAL (ROUND / KO) & BARRA DE CONTROLES
+   ========================================================================== */
+
+.center-banner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 15;
+  text-align: center;
+  animation: bannerPop 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.banner-main {
+  font-size: clamp(32px, 5.4vw, 68px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 6px 26px rgba(0, 0, 0, 0.9), 0 0 24px rgba(255, 190, 11, 0.55);
+}
+
+.banner-sub {
+  margin-top: 4px;
+  font-size: clamp(13px, 1.6vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+@keyframes bannerPop {
+  0% { transform: scale(0.55); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.controls-bar {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8, 11, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 5px 16px;
+  font-size: clamp(9px, 0.95vw, 12px);
+  color: var(--text-muted);
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.controls-bar strong {
+  color: var(--text-main);
+}
+
+.controls-bar .sep {
+  margin: 0 8px;
+  opacity: 0.35;
+}
+
+/* ==========================================================================
+   TELAS OVERLAY (MENU, CONTROLES, PAUSA, VITÓRIA)
+   ========================================================================== */
+
+.overlay-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(10, 14, 26, 0.55) 0%, rgba(5, 7, 14, 0.82) 100%);
+  backdrop-filter: blur(4px);
+  z-index: 25;
+  padding: 16px;
+}
+
+.menu-card,
+.modal-card {
+  width: min(520px, 94%);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  padding: clamp(18px, 2.6vw, 28px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-card {
+  width: min(650px, 95%);
+}
+
+.small-card {
+  width: min(360px, 90%);
+  text-align: center;
+}
+
+.title-group {
+  text-align: center;
+}
+
+.mini-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  background: rgba(255, 190, 11, 0.12);
+  border: 1px solid rgba(255, 190, 11, 0.35);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+
+.title-group h1 {
+  font-size: clamp(30px, 4.4vw, 50px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.title-group h1 span {
+  color: var(--p1-color);
+  text-shadow: 0 0 20px var(--p1-glow);
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.config-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.config-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.config-row label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.segmented {
+  display: flex;
+  gap: 6px;
+  background: rgba(6, 8, 16, 0.72);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.seg-btn {
+  flex: 1;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.seg-btn:hover {
+  color: var(--text-main);
+}
+
+.seg-btn.active {
+  background: rgba(0, 229, 255, 0.18);
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.55);
+}
+
+.styled-select {
+  width: 100%;
+  background: rgba(6, 8, 16, 0.85);
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.styled-select:focus {
+  border-color: var(--p1-color);
+}
+
+.menu-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.menu-buttons.vertical {
+  flex-direction: column;
+}
+
+.primary-btn,
+.secondary-btn {
+  flex: 1;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 8px 22px rgba(0, 140, 255, 0.4);
+}
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(0, 180, 255, 0.6);
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Modal de Controles */
+.modal-card h2 {
+  text-align: center;
+  font-size: clamp(20px, 2.4vw, 28px);
+  letter-spacing: 0.05em;
+}
+
+.controls-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ctrl-box {
+  background: rgba(7, 10, 19, 0.72);
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.p1-box h3 { color: var(--p1-color); margin-bottom: 8px; font-size: 15px; }
+.p2-box h3 { color: var(--p2-color); margin-bottom: 8px; font-size: 15px; }
+
+.ctrl-box ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #d6def5;
+}
+
+kbd {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.tips-strip {
+  background: rgba(255, 190, 11, 0.09);
+  border: 1px solid rgba(255, 190, 11, 0.28);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #e6ecff;
+}
+
+/* Vitória */
+.victory-card {
+  text-align: center;
+  align-items: center;
+}
+
+.score-summary {
+  font-size: 16px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.stats-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat-card {
+  background: rgba(7, 10, 19, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.stat-card h4 {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 640px) {
+  .controls-columns,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .controls-bar {
+    display: none;
+  }
+}
