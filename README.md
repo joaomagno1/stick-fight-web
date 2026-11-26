@@ -1,14 +1,14 @@
-# Stick Fight: Arena Web 🥊⚡
+# Stick Fight: Arena Web
 
 Jogo de luta 2D leve inspirado em **Stick Fight: The Game**, desenvolvido inteiramente com **HTML5, CSS3 e JavaScript puro (Vanilla JS)** — sem bibliotecas externas, sem imagens pesadas e sem arquivos de áudio externos (todo o som é sintetizado em tempo real via **Web Audio API**).
 
 Ideal para rodar instantaneamente no navegador através do **GitHub Pages** ou abrindo o arquivo `index.html` diretamente no computador.
 
-👉 **[Jogar Online (GitHub Pages)](https://joaomagno1.github.io/stick-fight-web/)**
+ **[Jogar Online (GitHub Pages)](https://joaomagno1.github.io/stick-fight-web/)**
 
 ---
 
-## ✨ Principais Recursos
+## Principais Recursos
 
 - **Ultra Leve (~50 KB no total):** Carregamento imediato em qualquer computador ou navegador escolar.
 - **2 Modos de Jogo:**
@@ -28,7 +28,7 @@ Ideal para rodar instantaneamente no navegador através do **GitHub Pages** ou a
 
 ---
 
-## 🎮 Controles
+## Controles
 
 | Ação | Jogador 1 (Ciano) | Jogador 2 (Coral) |
 | :--- | :---: | :---: |
@@ -42,7 +42,7 @@ Ideal para rodar instantaneamente no navegador através do **GitHub Pages** ou a
 
 ---
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```text
 ├── index.html       # Estrutura principal, Canvas 16:9 e telas de interface (Menu, HUD, Pausa, Vitória)
@@ -55,23 +55,3 @@ Ideal para rodar instantaneamente no navegador através do **GitHub Pages** ou a
 │   └── main.js      # Loop principal (requestAnimationFrame), câmera, partículas e estado da partida
 └── README.md        # Documentação e guia de publicação no GitHub Pages
 ```
-
----
-
-## 🚀 Como Publicar e Rodar pelo GitHub Pages
-
-1. Crie um novo repositório público no [GitHub](https://github.com/new) (por exemplo, `stick-fight-web`).
-2. Envie todos os arquivos desta pasta (`index.html`, `style.css`, pasta `js/` e `README.md`) para a raiz do repositório:
-   - Pelo site do GitHub (**Add file → Upload files**), arrastando os arquivos e a pasta `js/`, **ou** pelo terminal Git:
-     ```bash
-     git init
-     git add .
-     git commit -m " Jogo Stick Fight Web em HTML, CSS e JS"
-     git branch -M main
-     git remote add origin https://github.com/joaomagno1/stick-fight-web.git
-     git push -u origin main
-     ```
-3. No repositório no GitHub, clique na aba **Settings** (Configurações) → no menu lateral esquerdo clique em **Pages**.
-4. Em **Build and deployment → Source**, mantenha **Deploy from a branch** e selecione a branch **`main`** e a pasta **`/ (root)`**, depois clique em **Save**.
-5. Aguarde cerca de 1 minuto e acesse o link gerado:
-   `https://joaomagno1.github.io/stick-fight-web/`
